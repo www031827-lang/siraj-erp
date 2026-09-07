@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  db:
+    image: mariadb:10.6
+    container_name: siraj_db                  # <--- تغيير الاسم
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: siraj_erp               # <--- تغيير اسم قاعدة البيانات
+      MYSQL_USER: siraj_user
+      MYSQL_PASSWORD: siraj_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - db_data:/var/lib/mysql
+
+  server:
+    build: ./server
+    container_name: siraj_server              # <--- تغيير الاسم
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_DATABASE: siraj_erp                  # <--- تغيير اسم قاعدة البيانات
+      DB_USERNAME: siraj_user
+      DB_PASSWORD: siraj_pass
+    volumes:
+      - ./server:/var/www/html
+
+volumes:
+  db_data:
